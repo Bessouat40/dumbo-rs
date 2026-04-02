@@ -20,26 +20,14 @@ pub fn load_dumboignore(dir: &Path) -> Vec<String> {
 
 // ── Dumbo.toml ─────────────────────────────────────────────────────────────────
 
-// Lit la valeur de `lang` dans une section [section_name] du Dumbo.toml racine.
+pub fn load_dumbo_config(dir: &Path) -> Option<toml::Value> {
+    let content = fs::read_to_string(dir.join("Dumbo.toml")).ok()?;
+    content.parse().ok()
+}
+
 fn read_section_lang(section: &str) -> Option<String> {
-    let content = fs::read_to_string("Dumbo.toml").ok()?;
-    let header = format!("[{}]", section);
-    let mut in_section = false;
-    for line in content.lines() {
-        let trimmed = line.trim();
-        if trimmed == header {
-            in_section = true;
-            continue;
-        }
-        if in_section {
-            if trimmed.starts_with('[') { break; }
-            if trimmed.starts_with("lang") {
-                let val = trimmed.split('=').nth(1)?.trim();
-                return Some(val.trim_matches('"').to_string());
-            }
-        }
-    }
-    None
+    let value = load_dumbo_config(Path::new("."))?;
+    value.get(section)?.get("lang")?.as_str().map(|s| s.to_string())
 }
 
 // ── File helpers ───────────────────────────────────────────────────────────────

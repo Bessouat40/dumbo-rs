@@ -58,16 +58,27 @@ fn git_diff(commit: Option<&str>, dir: &Path) -> String {
     }
 }
 
+fn git_root() -> PathBuf {
+    Command::new("git")
+        .args(["rev-parse", "--show-toplevel"])
+        .output()
+        .ok()
+        .filter(|o| o.status.success())
+        .map(|o| PathBuf::from(String::from_utf8_lossy(&o.stdout).trim()))
+        .unwrap_or_else(|| PathBuf::from("."))
+}
+
 fn git_changed_files(commit: Option<&str>, dir: &Path) -> Vec<PathBuf> {
     let mut args = vec!["diff", "--name-only"];
     if let Some(c) = commit { args.push(c); } else { args.push("--staged"); }
     args.extend_from_slice(&["--", dir.to_str().unwrap_or(".")]);
 
+    let root = git_root();
     let output = Command::new("git").args(&args).output();
     match output {
         Ok(o) => String::from_utf8_lossy(&o.stdout)
             .lines()
-            .map(|l| PathBuf::from(l.trim()))
+            .map(|l| root.join(l.trim()))
             .filter(|p| p.is_file())
             .collect(),
         Err(e) => { eprintln!("Error: could not run git: {}", e); process::exit(1); }

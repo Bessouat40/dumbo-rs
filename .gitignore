@@ -3,3 +3,4 @@
 **/*.rs.bk
 .dumboignore
 Dumbo.toml
+dumbo_*.md

@@ -99,33 +99,18 @@ pub fn write_dumboignore(dir: &Path, detected: &[&LangDef]) {
 }
 
 fn read_existing_sections(dir: &Path) -> Vec<String> {
-    let path = dir.join("Dumbo.toml");
-    let Ok(content) = fs::read_to_string(&path) else { return vec![] };
-    content.lines()
-        .filter(|l| l.starts_with('[') && l.ends_with(']'))
-        .map(|l| l[1..l.len() - 1].to_string())
-        .collect()
+    let Some(toml::Value::Table(table)) = crate::run::load_dumbo_config(dir) else { return vec![] };
+    table.keys().cloned().collect()
 }
 
 fn read_all_sections_with_lang(dir: &Path) -> Vec<(String, String)> {
-    let path = dir.join("Dumbo.toml");
-    let Ok(content) = fs::read_to_string(&path) else { return vec![] };
-    let mut result = Vec::new();
-    let mut current_section: Option<String> = None;
-    for line in content.lines() {
-        let trimmed = line.trim();
-        if trimmed.starts_with('[') && trimmed.ends_with(']') {
-            current_section = Some(trimmed[1..trimmed.len() - 1].to_string());
-        } else if trimmed.starts_with("lang") {
-            if let Some(ref section) = current_section {
-                let lang = trimmed.split('=').nth(1)
-                    .map(|v| v.trim().trim_matches('"').to_string())
-                    .unwrap_or_default();
-                result.push((section.clone(), lang));
-            }
-        }
-    }
-    result
+    let Some(toml::Value::Table(table)) = crate::run::load_dumbo_config(dir) else { return vec![] };
+    table.iter()
+        .filter_map(|(k, v)| {
+            let lang = v.get("lang")?.as_str().unwrap_or("").to_string();
+            Some((k.clone(), lang))
+        })
+        .collect()
 }
 
 pub fn cmd_list(dir: &Path) {
