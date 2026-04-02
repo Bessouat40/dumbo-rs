@@ -6,17 +6,6 @@
 
 Dumbo-RS is an ultra-fast CLI tool written in Rust that condenses an entire codebase into a single, well-structured Markdown file — the perfect companion for providing comprehensive context to LLMs (ChatGPT, Claude, etc.).
 
-## Features
-
-- **Project Tree** — Builds a visual directory structure at the top of the output, showing only the files that are actually included.
-- **Markdown Output** — Files are wrapped in fenced code blocks with language hints for better LLM interpretation.
-- **Multi-Language** — Combine languages in a single run with comma-separated extensions (`rs,ts`).
-- **Universal Files** — Always includes `Dockerfile`, `docker-compose`, `Makefile`, `.yml`, `.toml`, and `.md` files regardless of language.
-- **Smart Ignore** — Default exclusions per language (`target`, `node_modules`, `venv`, `.git`, etc.), plus CLI overrides.
-- **`.dumboignore`** — Drop a `.dumboignore` file at the root of your project to permanently ignore specific directories or files (supports `#` comments).
-- **Clipboard** — Copy the output directly to your clipboard with `-c`.
-- **Blazing Fast** — Built with Rust for near-instant execution, even on large repositories.
-
 ## Installation
 
 ```bash
@@ -25,71 +14,88 @@ cargo install dumbo-rs
 
 The installed binary is named `dumbo`.
 
-## Usage
+## Commands
+
+### `dumbo init`
+
+Detects languages in the current directory and creates a `Dumbo.toml` + `.dumboignore`.
 
 ```bash
-dumbo <ext> <input_dir> <output_file> [extra_ignore_dirs...] [options]
+dumbo init           # single project
+dumbo init -r        # monorepo — scans all sub-folders
 ```
 
-| Argument | Description |
-|---|---|
-| `<ext>` | Language(s): `rs`, `py`, `js`, `ts`, `go`, `java`, `c`, `cpp` — comma-separated for multiple |
-| `<input_dir>` | Path to the project directory |
-| `<output_file>` | Output file path (e.g. `context.md`) |
-| `[extra_ignore_dirs]` | Additional directories or files to ignore (optional) |
+### `dumbo update`
 
-| Option | Description |
-|---|---|
-| `-c`, `--clipboard` | Also copy the output to the clipboard |
-| `-h`, `--help` | Print help |
-| `-v`, `--version` | Print version |
+Adds new sub-projects to an existing `Dumbo.toml` (e.g. after adding a new service to a monorepo).
 
-## Examples
-
-Rust project:
 ```bash
-dumbo rs ./my_project context.md
+dumbo update
 ```
 
-Full-stack project (Rust backend + TypeScript frontend):
+### `dumbo list`
+
+Lists all sections in the current `Dumbo.toml`.
+
 ```bash
-dumbo rs,ts ./my_app context.md
+dumbo list
 ```
 
-TypeScript project, ignoring test folders, copied to clipboard:
+### `dumbo run`
+
+Generates a Markdown context file using the config from `Dumbo.toml`.
+
 ```bash
-dumbo ts ./web_app output.md tests_data logs -c
+dumbo run                        # → dumbo_output.md  (root project)
+dumbo run frontend               # → dumbo_frontend.md
+dumbo run frontend backend       # → dumbo_frontend_backend.md
+dumbo run frontend -c            # → also copies to clipboard
 ```
 
-## Supported Languages
+### `dumbo diff`
 
-| Argument | Extensions | Default Ignored Directories |
-|---|---|---|
-| `rs` | `.rs` | `target`, `.git` |
-| `py` | `.py` | `__pycache__`, `venv`, `.venv`, `.git` |
-| `js` | `.js`, `.jsx` | `node_modules`, `dist`, `.git` |
-| `ts` | `.ts`, `.tsx` | `node_modules`, `dist`, `.git` |
-| `go` | `.go` | `vendor`, `.git` |
-| `java` | `.java` | `target`, `build`, `.gradle`, `.git` |
-| `c` | `.c`, `.h` | `build`, `cmake-build-debug`, `cmake-build-release`, `.git` |
-| `cpp` | `.cpp`, `.cc`, `.cxx`, `.hpp`, `.h` | `build`, `cmake-build-debug`, `cmake-build-release`, `.git` |
+Generates a Markdown file with three sections: a stat summary, the full git diff, and the current content of every changed file (with line numbers). Useful for debugging a regression — paste the output into an LLM and it has exactly what it needs without flooding the context window.
 
-The following are always included regardless of language: `Dockerfile`, `docker-compose.yml`, `Makefile`, `.yaml`, `.yml`, `.toml`, `.md`.
+```bash
+dumbo diff abc1234               # → dumbo_diff_abc1234.md
+dumbo diff main~3 backend        # → diff of backend since 3 commits ago
+dumbo diff v1.0.0 -c             # → diff since a tag, copied to clipboard
+dumbo diff --staged              # → diff of staged changes
+```
 
-## .dumboignore
+## Config files
 
-Place a `.dumboignore` file at the root of your project to define permanent ignore rules:
+**`Dumbo.toml`** — one file at the project root, one section per sub-project:
+
+```toml
+[root]
+lang = "rs"
+
+[frontend]
+lang = "ts"
+
+[backend]
+lang = "py"
+```
+
+**`.dumboignore`** — one per directory, lists files/folders to exclude:
 
 ```
 # .dumboignore
-
-# directories
-tests_data
-fixtures
-
-# files
-Cargo.lock
 secrets.toml
+fixtures/
 ```
 
-Entries are matched by name and apply to the entire directory tree.
+## Options
+
+| Option | Description |
+|---|---|
+| `-c`, `--clipboard` | Copy output to clipboard |
+| `-h`, `--help` | Print help |
+| `-v`, `--version` | Print version |
+
+## Supported languages
+
+`rs`, `py`, `js`, `ts`, `go`, `java`, `c`, `cpp`
+
+The following are always included regardless of language: `Dockerfile`, `docker-compose.yml`, `Makefile`, `.yaml`, `.yml`, `.toml`, `.md`.

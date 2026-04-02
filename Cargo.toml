@@ -1,8 +1,9 @@
 [package]
 name = "dumbo-rs"
-version = "0.2.0"
+
+version = "0.3.0"
 edition = "2021"
-description = "A simple tool to ingest code files into a single text file for LLM context."
+description = "Turn any codebase into LLM-ready context : supports monorepos, multi-project runs, and git diffs."
 license = "MIT"
 repository = "https://github.com/Bessouat40/dumbo-rs"
 readme = "README.md"
