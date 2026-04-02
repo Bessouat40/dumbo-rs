@@ -18,13 +18,17 @@ impl Config {
 
         for part in ext_str.split(',') {
             let (exts, dirs) = match part.trim() {
-                "rs"  => (&["rs"][..],              &["target", ".git"][..]),
-                "py"  => (&["py"][..],              &["__pycache__", "venv", ".venv", ".git"][..]),
-                "js"  => (&["js", "jsx"][..],       &["node_modules", "dist", ".git"][..]),
-                "ts"  => (&["ts", "tsx"][..],       &["node_modules", "dist", ".git"][..]),
+                "rs"   => (&["rs"][..],                    &["target", ".git"][..]),
+                "py"   => (&["py"][..],                    &["__pycache__", "venv", ".venv", ".git"][..]),
+                "js"   => (&["js", "jsx"][..],             &["node_modules", "dist", ".git"][..]),
+                "ts"   => (&["ts", "tsx"][..],             &["node_modules", "dist", ".git"][..]),
+                "go"   => (&["go"][..],                    &["vendor", ".git"][..]),
+                "java" => (&["java"][..],                  &["target", "build", ".gradle", ".git"][..]),
+                "c"    => (&["c", "h"][..],                &["build", "cmake-build-debug", "cmake-build-release", ".git"][..]),
+                "cpp"  => (&["cpp", "cc", "cxx", "hpp", "h"][..], &["build", "cmake-build-debug", "cmake-build-release", ".git"][..]),
                 other => {
                     eprintln!("Error: unsupported language '{}'.", other);
-                    eprintln!("Supported: rs, py, js, ts");
+                    eprintln!("Supported: rs, py, js, ts, go, java, c, cpp");
                     process::exit(1);
                 }
             };
@@ -56,14 +60,18 @@ fn is_included_file(path: &Path, config: &Config) -> bool {
 
 fn lang_hint(path: &Path) -> &'static str {
     match path.extension().and_then(|s| s.to_str()).unwrap_or("") {
-        "rs"           => "rust",
-        "py"           => "python",
-        "js" | "jsx"   => "javascript",
-        "ts" | "tsx"   => "typescript",
-        "toml"         => "toml",
-        "yaml" | "yml" => "yaml",
-        "md"           => "markdown",
-        _              => "",
+        "rs"                    => "rust",
+        "py"                    => "python",
+        "js" | "jsx"            => "javascript",
+        "ts" | "tsx"            => "typescript",
+        "go"                    => "go",
+        "java"                  => "java",
+        "c" | "h"               => "c",
+        "cpp" | "cc" | "cxx" | "hpp" => "cpp",
+        "toml"                  => "toml",
+        "yaml" | "yml"          => "yaml",
+        "md"                    => "markdown",
+        _                       => "",
     }
 }
 
@@ -210,7 +218,7 @@ fn print_help() {
     println!("  dumbo-rs <ext> <input_dir> <output_file> [extra_ignore_dirs...]");
     println!();
     println!("ARGS:");
-    println!("  <ext>              Language(s): rs, py, js, ts — comma-separated for multiple");
+    println!("  <ext>              Language(s): rs, py, js, ts, go, java, c, cpp — comma-separated for multiple");
     println!("  <input_dir>        Path to the project directory");
     println!("  <output_file>      Output file path (e.g. context.md)");
     println!("  [extra_ignore_dirs]  Additional directories to ignore (optional)");

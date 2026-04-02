@@ -33,7 +33,7 @@ dumbo <ext> <input_dir> <output_file> [extra_ignore_dirs...] [options]
 
 | Argument | Description |
 |---|---|
-| `<ext>` | Language(s): `rs`, `py`, `js`, `ts` — comma-separated for multiple |
+| `<ext>` | Language(s): `rs`, `py`, `js`, `ts`, `go`, `java`, `c`, `cpp` — comma-separated for multiple |
 | `<input_dir>` | Path to the project directory |
 | `<output_file>` | Output file path (e.g. `context.md`) |
 | `[extra_ignore_dirs]` | Additional directories or files to ignore (optional) |
@@ -69,6 +69,10 @@ dumbo ts ./web_app output.md tests_data logs -c
 | `py` | `.py` | `__pycache__`, `venv`, `.venv`, `.git` |
 | `js` | `.js`, `.jsx` | `node_modules`, `dist`, `.git` |
 | `ts` | `.ts`, `.tsx` | `node_modules`, `dist`, `.git` |
+| `go` | `.go` | `vendor`, `.git` |
+| `java` | `.java` | `target`, `build`, `.gradle`, `.git` |
+| `c` | `.c`, `.h` | `build`, `cmake-build-debug`, `cmake-build-release`, `.git` |
+| `cpp` | `.cpp`, `.cc`, `.cxx`, `.hpp`, `.h` | `build`, `cmake-build-debug`, `cmake-build-release`, `.git` |
 
 The following are always included regardless of language: `Dockerfile`, `docker-compose.yml`, `Makefile`, `.yaml`, `.yml`, `.toml`, `.md`.
 
