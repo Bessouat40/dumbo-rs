@@ -204,6 +204,27 @@ pub fn cmd_update(dir: &Path) {
     println!("Updated Dumbo.toml — added sections: [{}]", added.join(", "));
 }
 
+fn update_gitignore(dir: &Path) {
+    if !dir.join(".git").exists() { return; }
+
+    let gitignore_path = dir.join(".gitignore");
+    let entry = "dumbo_*.md";
+
+    let existing = fs::read_to_string(&gitignore_path).unwrap_or_default();
+    if existing.lines().any(|l| l.trim() == entry) {
+        return;
+    }
+
+    let content = if existing.is_empty() || existing.ends_with('\n') {
+        format!("{}{}\n", existing, entry)
+    } else {
+        format!("{}\n{}\n", existing, entry)
+    };
+
+    fs::write(&gitignore_path, content).expect("Failed to update .gitignore");
+    println!("Updated .gitignore — added {}", entry);
+}
+
 pub fn cmd_init(dir: &Path, recursive: bool) {
     let toml_path = dir.join("Dumbo.toml");
     if toml_path.exists() {
@@ -251,6 +272,7 @@ pub fn cmd_init(dir: &Path, recursive: bool) {
     }
 
     write_dumbo_toml(dir, &sections);
+    update_gitignore(dir);
 
     let section_names: Vec<&str> = sections.iter().map(|(s, _)| s.as_str()).collect();
     println!("Created Dumbo.toml with sections: [{}]", section_names.join(", "));

@@ -40,6 +40,9 @@ impl Config {
 pub fn is_included_file(path: &Path, config: &Config) -> bool {
     let filename = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
     let extension = path.extension().and_then(|s| s.to_str()).unwrap_or("");
+    if filename.starts_with("dumbo_") && extension == "md" {
+        return false;
+    }
     Config::universal_files().contains(&filename)
         || config.extensions.contains(&extension)
         || Config::universal_extensions().contains(&extension)
