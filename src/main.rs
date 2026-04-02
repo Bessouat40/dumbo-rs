@@ -20,7 +20,7 @@ fn print_help() {
     println!("  update [dir]               Add new sub-projects to an existing Dumbo.toml");
     println!("  list [dir]                 List all sections in Dumbo.toml");
     println!("  diff <commit> [dir...]     Diff since a commit + current state of changed files");
-    println!("  diff --staged [dir...]     Same but for staged changes");
+    println!("  diff --staged|-s [dir...]  Same but for staged changes");
     println!("  run [dir...]               Generate context file(s) from Dumbo.toml");
     println!();
     println!("OPTIONS:");
@@ -54,7 +54,7 @@ fn main() {
     // dumbo diff <commit>|--staged [dir...] [-c]
     if args.get(1).map(|s| s.as_str()) == Some("diff") {
         let use_clipboard = args.iter().any(|a| a == "--clipboard" || a == "-c");
-        let staged = args.iter().any(|a| a == "--staged");
+        let staged = args.iter().any(|a| a == "--staged" || a == "-s");
         let (commit, dir_skip) = if staged {
             (None, 2)
         } else {
@@ -68,7 +68,7 @@ fn main() {
             }
         };
         let dir_args: Vec<&str> = args.iter().skip(dir_skip)
-            .filter(|a| *a != "--clipboard" && *a != "-c" && *a != "--staged")
+            .filter(|a| *a != "--clipboard" && *a != "-c" && *a != "--staged" && *a != "-s")
             .map(|s| s.trim_end_matches('/'))
             .collect();
         let dir_args = if dir_args.is_empty() { vec!["."] } else { dir_args };
