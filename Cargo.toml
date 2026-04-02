@@ -6,3 +6,7 @@ description = "A simple tool to ingest code files into a single text file for LL
 license = "MIT"
 repository = "https://github.com/Bessouat40/dumbo-rs"
 readme = "README.md"
+
+[[bin]]
+name = "dumbo"
+path = "src/main.rs"
