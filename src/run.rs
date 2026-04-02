@@ -7,15 +7,26 @@ use crate::clipboard::{copy_to_clipboard, CLIPBOARD_WARN_BYTES};
 
 // ── .dumboignore ───────────────────────────────────────────────────────────────
 
-pub fn load_dumboignore(dir: &Path) -> Vec<String> {
-    let path = dir.join(".dumboignore");
-    let Ok(content) = fs::read_to_string(&path) else { return vec![] };
+fn parse_dumboignore(path: &std::path::PathBuf) -> Vec<String> {
+    let Ok(content) = fs::read_to_string(path) else { return vec![] };
     content
         .lines()
         .map(|l| l.trim())
         .filter(|l| !l.is_empty() && !l.starts_with('#'))
         .map(|l| l.to_string())
         .collect()
+}
+
+// Charge le .dumboignore racine + celui du dossier cible (si différent), mergés.
+pub fn load_dumboignore(dir: &Path) -> Vec<String> {
+    let root = Path::new(".");
+    let mut entries = parse_dumboignore(&root.join(".dumboignore"));
+    if dir != root {
+        for entry in parse_dumboignore(&dir.join(".dumboignore")) {
+            if !entries.contains(&entry) { entries.push(entry); }
+        }
+    }
+    entries
 }
 
 // ── Dumbo.toml ─────────────────────────────────────────────────────────────────
@@ -117,6 +128,25 @@ pub fn process_directory(
     Ok(())
 }
 
+// ── Size estimation ────────────────────────────────────────────────────────────
+
+fn estimate_size(dir: &Path, config: &Config, extra_ignored: &[String]) -> u64 {
+    let Ok(entries) = fs::read_dir(dir) else { return 0 };
+    let mut total = 0u64;
+    for entry in entries.filter_map(|e| e.ok()) {
+        let path = entry.path();
+        let name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
+        if path.is_dir() {
+            if !config.ignored_dirs.contains(&name) && !extra_ignored.contains(&name.to_string()) {
+                total += estimate_size(&path, config, extra_ignored);
+            }
+        } else if is_included_file(&path, config) && !extra_ignored.contains(&name.to_string()) {
+            total += fs::metadata(&path).map(|m| m.len()).unwrap_or(0);
+        }
+    }
+    total
+}
+
 // ── Commands ───────────────────────────────────────────────────────────────────
 
 pub fn cmd_run(dirs: &[&Path], use_clipboard: bool) {
@@ -160,6 +190,20 @@ pub fn cmd_run(dirs: &[&Path], use_clipboard: bool) {
             process::exit(1);
         }
     };
+
+    // ── Estimation préventive de taille ──────────────────────────────────────
+    const SIZE_WARN_BYTES: u64 = 10 * 1024 * 1024; // 10 MB
+    let estimated: u64 = projects.iter().map(|(dir, _, lang_str)| {
+        let config = Config::from_ext_str(lang_str);
+        let extra_ignored = load_dumboignore(dir);
+        estimate_size(dir, &config, &extra_ignored)
+    }).sum();
+    if estimated > SIZE_WARN_BYTES {
+        eprintln!(
+            "Warning: ~{} of source files will be ingested. Output may be large — consider adding entries to .dumboignore.",
+            format_size(estimated)
+        );
+    }
 
     let mut total_stats = Stats { file_count: 0, total_bytes: 0 };
 
