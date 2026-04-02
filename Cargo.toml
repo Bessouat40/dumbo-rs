@@ -1,9 +1,8 @@
 [package]
 name = "dumbo-rs"
 version = "0.1.0"
-edition = "2021"
-authors = ["Ton Nom <ton@email.com>"]
+edition = "2026"
 description = "A simple tool to ingest code files into a single text file for LLM context."
-license = "MIT" # Ou "Apache-2.0"
-repository = "https://github.com/ton-pseudo/dumbo-rs"
+license = "MIT"
+repository = "https://github.com/Bessouat40/dumbo-rs"
 readme = "README.md"
