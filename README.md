@@ -8,9 +8,35 @@ Dumbo-RS is an ultra-fast CLI tool written in Rust that condenses an entire code
 
 ## Installation
 
+### With Cargo
+
 ```bash
 cargo install dumbo-rs
 ```
+
+### Without Cargo (pre-built binaries)
+
+Download the latest binary for your platform from the [Releases page](https://github.com/Bessouat40/dumbo-rs/releases/latest).
+
+**macOS / Linux:**
+
+```bash
+# macOS Apple Silicon
+curl -L https://github.com/Bessouat40/dumbo-rs/releases/latest/download/dumbo-macos-arm64 -o dumbo
+
+# macOS Intel
+curl -L https://github.com/Bessouat40/dumbo-rs/releases/latest/download/dumbo-macos-x86_64 -o dumbo
+
+# Linux x86_64
+curl -L https://github.com/Bessouat40/dumbo-rs/releases/latest/download/dumbo-linux-x86_64 -o dumbo
+
+chmod +x dumbo
+sudo mv dumbo /usr/local/bin/
+```
+
+**Windows:**
+
+Download `dumbo-windows-x86_64.exe` from the [Releases page](https://github.com/Bessouat40/dumbo-rs/releases/latest), rename it to `dumbo.exe` and add it to your `PATH`.
 
 The installed binary is named `dumbo`.
 
