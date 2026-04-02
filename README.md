@@ -1,5 +1,9 @@
 # Dumbo-RS
 
+<div align="center">
+    <img alt="dumbo-rs" height="200px" src="./media/dumbo-rs.png">
+</div>
+
 Dumbo-RS is an ultra-fast Command Line Interface (CLI) tool written in Rust, designed to condense an entire codebase into a single, well-structured text file.
 
 It is the perfect companion for providing comprehensive context to LLMs (ChatGPT, Claude, etc.) by including a visual project tree and all relevant source files while intelligently skipping "junk" directories.
