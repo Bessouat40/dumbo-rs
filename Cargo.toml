@@ -1,6 +1,6 @@
 [package]
 name = "dumbo-rs"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "A simple tool to ingest code files into a single text file for LLM context."
 license = "MIT"
