@@ -60,7 +60,7 @@ Generates a Markdown file with three sections: a stat summary, the full git diff
 dumbo diff abc1234               # → dumbo_diff_abc1234.md
 dumbo diff main~3 backend        # → diff of backend since 3 commits ago
 dumbo diff v1.0.0 -c             # → diff since a tag, copied to clipboard
-dumbo diff --staged              # → diff of staged changes
+dumbo diff --staged|-s           # → diff of staged changes
 ```
 
 ## Config files
