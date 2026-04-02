@@ -1,8 +1,8 @@
 # Dumbo-RS
 
-<div align="center">
-    <img alt="dumbo-rs" height="200px" src="./media/dumbo-rs.png">
-</div>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Bessouat40/dumbo-rs/master/media/logo.png" alt="Dumbo-RS Logo" width="200">
+</p>
 
 Dumbo-RS is an ultra-fast Command Line Interface (CLI) tool written in Rust, designed to condense an entire codebase into a single, well-structured text file.
 
